@@ -26,18 +26,32 @@ class TodoService(
     private val todoRepo: ITodoRepository
 ) {
     // Mengambil semua daftar todo saya
+    // Mengambil semua daftar todo saya (support filter & sorting)
     suspend fun getAll(call: ApplicationCall) {
         val user = ServiceHelper.getAuthUser(call, userRepo)
 
         val search = call.request.queryParameters["search"] ?: ""
+        val urgencyParam = call.request.queryParameters["urgency"]
+        val sortBy = call.request.queryParameters["sortBy"]
+        val order = call.request.queryParameters["order"]
 
-        val todos = todoRepo.getAll(user.id, search)
+        // Convert urgency ke Int?
+        val urgency = urgencyParam?.toIntOrNull()
+
+        val todos = todoRepo.getAll(
+            user.id,
+            search,
+            urgency,
+            sortBy,
+            order
+        )
 
         val response = DataResponse(
             "success",
             "Berhasil mengambil daftar todo saya",
-            mapOf(Pair("todos", todos))
+            mapOf("todos" to todos)
         )
+
         call.respond(response)
     }
 
