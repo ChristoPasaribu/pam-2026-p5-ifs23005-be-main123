@@ -30,10 +30,11 @@ class TodoService(
         val user = ServiceHelper.getAuthUser(call, userRepo)
 
         val search = call.request.queryParameters["search"] ?: ""
-        val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-        val perPage = call.request.queryParameters["perPage"]?.toIntOrNull() ?: 10
+        val page = call.request.queryParameters["page"]?.toIntOrNull()?.coerceAtLeast(1) ?: 1
+        val perPage = call.request.queryParameters["perPage"]?.toIntOrNull()?.coerceIn(1, 50) ?: 10
+        val isDone = call.request.queryParameters["isDone"]?.toBooleanStrictOrNull()  // ← TAMBAH
 
-        val todos = todoRepo.getAll(user.id, search, page, perPage)  // ← pass page & perPage
+        val todos = todoRepo.getAll(user.id, search, page, perPage, isDone)  // ← pass isDone
 
         val response = DataResponse(
             "success",

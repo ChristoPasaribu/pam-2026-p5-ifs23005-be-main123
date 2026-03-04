@@ -14,29 +14,40 @@ import java.util.*
 import org.delcom.repositories.ITodoRepository.TodoStatistics
 
 class TodoRepository : ITodoRepository {
-    override suspend fun getAll(userId: String, search: String, page: Int, perPage: Int): List<Todo> = suspendTransaction {
+    override suspend fun getAll(
+        userId: String,
+        search: String,
+        page: Int,
+        perPage: Int,
+        isDone: Boolean?
+    ): List<Todo> = suspendTransaction {
         val offset = ((page - 1) * perPage).toLong()
 
         if (search.isBlank()) {
             TodoDAO
                 .find {
-                    (TodoTable.userId eq UUID.fromString(userId))
+                    (TodoTable.userId eq UUID.fromString(userId)).let { base ->
+                        if (isDone != null) base and (TodoTable.isDone eq isDone)  // ← TAMBAH filter
+                        else base
+                    }
                 }
                 .orderBy(TodoTable.createdAt to SortOrder.DESC)
-                .limit(perPage)        // ← pisah
-                .offset(offset)        // ← pisah
+                .limit(perPage)
+                .offset(offset)
                 .map(::todoDAOToModel)
         } else {
             val keyword = "%${search.lowercase()}%"
-
             TodoDAO
                 .find {
-                    (TodoTable.userId eq UUID.fromString(userId)) and
-                            (TodoTable.title.lowerCase() like keyword)
+                    ((TodoTable.userId eq UUID.fromString(userId)) and
+                            (TodoTable.title.lowerCase() like keyword)).let { base ->
+                        if (isDone != null) base and (TodoTable.isDone eq isDone)  // ← TAMBAH filter
+                        else base
+                    }
                 }
                 .orderBy(TodoTable.title to SortOrder.ASC)
-                .limit(perPage)        // ← pisah
-                .offset(offset)        // ← pisah
+                .limit(perPage)
+                .offset(offset)
                 .map(::todoDAOToModel)
         }
     }
