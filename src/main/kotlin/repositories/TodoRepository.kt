@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.lowerCase
 import java.util.*
+import org.delcom.repositories.ITodoRepository.TodoStatistics
 
 class TodoRepository : ITodoRepository {
     override suspend fun getAll(userId: String, search: String): List<Todo> = suspendTransaction {
@@ -84,6 +85,26 @@ class TodoRepository : ITodoRepository {
                     (TodoTable.userId eq UUID.fromString(userId))
         }
         rowsDeleted >= 1
+    }
+
+    override suspend fun getStatistics(userId: String): TodoStatistics = suspendTransaction {
+        val total = TodoDAO.find { TodoTable.userId eq UUID.fromString(userId) }.count()
+
+        val completed = TodoDAO.find {
+            (TodoTable.userId eq UUID.fromString(userId)) and
+                    (TodoTable.isDone eq true)
+        }.count()
+
+        val incomplete = TodoDAO.find {
+            (TodoTable.userId eq UUID.fromString(userId)) and
+                    (TodoTable.isDone eq false)
+        }.count()
+
+        TodoStatistics(
+            total = total,
+            completed = completed,
+            incomplete = incomplete
+        )
     }
 
 }

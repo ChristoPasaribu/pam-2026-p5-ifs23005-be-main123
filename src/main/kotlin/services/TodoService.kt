@@ -265,4 +265,23 @@ class TodoService(
 
         call.respondFile(file)
     }
+
+    // Mengambil statistik todo saya
+    suspend fun getStatistics(call: ApplicationCall) {
+        val user = ServiceHelper.getAuthUser(call, userRepo)
+
+        val stats = todoRepo.getStatistics(user.id)
+
+        val response = DataResponse(
+            "success",
+            "Berhasil mengambil statistik todo",
+            mapOf(
+                "total" to stats.total,
+                "completed" to stats.completed,
+                "incomplete" to stats.incomplete
+            )
+        )
+
+        call.respond(response)
+    }
 }
