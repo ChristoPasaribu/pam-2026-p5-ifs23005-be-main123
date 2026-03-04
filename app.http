@@ -156,13 +156,14 @@ Content-    Type: application/json
 
 ### Mengubah todo
 # @name PutTodo
-PUT {{BaseUrl}}/todos/bb39442b-e522-47c1-b275-0f211ceddaba
+PUT {{BaseUrl}}/todos/{{todoId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
   "title": "Judul Todo",
-  "description": "Deskripsi Todo"
+  "description": "Deskripsi Todo",
+  "isDone": true
 }
 
 ### Mengubah cover todo
