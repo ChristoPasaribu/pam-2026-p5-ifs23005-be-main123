@@ -1,12 +1,14 @@
-## Global Variabel
-#@BaseUrl = https://pam-2026-p5-ifs18005-be.delcom.org:8080
-@BaseUrl = https://p5.ayam.blog:8080/
+## =========================================
+## GLOBAL VARIABLE
+## =========================================
 
-### ---------------------------------------
-## Auth
-### ---------------------------------------
+@BaseUrl = https://p5.ayam.blog:8080
 
-### Melakukan pendaftaran
+## =========================================
+## AUTH
+## =========================================
+
+### Register
 # @name PostRegister
 POST {{BaseUrl}}/auth/register
 Content-Type: application/json
@@ -17,7 +19,7 @@ Content-Type: application/json
   "password": "tester"
 }
 
-### Masuk ke layanan
+### Login
 # @name PostLogin
 POST {{BaseUrl}}/auth/login
 Content-Type: application/json
@@ -32,7 +34,7 @@ Content-Type: application/json
     client.global.set("refreshToken", response.body.data.refreshToken);
 %}
 
-### Keluar dari layanan (skip run)
+### Logout
 # @name PostLogout
 POST {{BaseUrl}}/auth/logout
 Content-Type: application/json
@@ -41,7 +43,7 @@ Content-Type: application/json
   "authToken": "{{authToken}}"
 }
 
-### Masuk ke layanan
+### Refresh Token
 # @name PostRefreshToken
 POST {{BaseUrl}}/auth/refresh-token
 Content-Type: application/json
@@ -56,23 +58,20 @@ Content-Type: application/json
     client.global.set("refreshToken", response.body.data.refreshToken);
 %}
 
-### ---------------------------------------
-## Users
-### ---------------------------------------
+## =========================================
+## USERS
+## =========================================
 
-### Mengambil informasi akun
+### Get My Profile
 # @name GetUserMe
 GET {{BaseUrl}}/users/me
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
 
 > {%
     client.global.set("userId", response.body.data.user.id);
 %}
 
-
-
-### Mengubah informasi akun + about
+### Update Profile
 # @name PutUserMe
 PUT {{BaseUrl}}/users/me
 Authorization: Bearer {{authToken}}
@@ -81,10 +80,10 @@ Content-Type: application/json
 {
   "name": "Tester Update",
   "username": "tester",
-  "about": "Saya adalah mahasiswa informatika yang sedang belajar backend Ktor."
+  "about": "Saya sedang belajar backend Ktor."
 }
 
-### Mengubah kata sandi akun
+### Change Password
 # @name PutUserMePassword
 PUT {{BaseUrl}}/users/me/password
 Authorization: Bearer {{authToken}}
@@ -95,7 +94,7 @@ Content-Type: application/json
   "password": "tester"
 }
 
-### Mengubah photo profile
+### Update Profile Photo
 # @name PutUserMePhoto
 PUT {{BaseUrl}}/users/me/photo
 Authorization: Bearer {{authToken}}
@@ -108,25 +107,26 @@ Content-Type: image/png
 < ./uploads/examples/me.png
 --WebAppBoundary--
 
-### Mengambil data tumbuhan berdasarkan id-nya
-@userId = 00ed9d33-61b0-48b7-a32a-6510af028731
-
-# @name GetMyPhoto
+### Get User Photo
+# @name GetUserPhoto
 GET {{BaseUrl}}/images/users/{{userId}}
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
 
-### ---------------------------------------
-## Todos
-### ---------------------------------------
+## =========================================
+## TODOS
+## =========================================
 
-### Mengambil semua data todo user saat ini
+### Get All Todos (No Filter)
 # @name GetTodos
-GET {{BaseUrl}}/todos?search=
+GET {{BaseUrl}}/todos
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
 
-### Menambahkan todo
+### Get Todos With Filter & Sorting
+# @name GetTodosFiltered
+GET {{BaseUrl}}/todos?search=belajar&urgency=HIGH&isDone=false&sortBy=createdAt&order=desc
+Authorization: Bearer {{authToken}}
+
+### Create Todo
 # @name PostTodos
 POST {{BaseUrl}}/todos
 Authorization: Bearer {{authToken}}
@@ -134,39 +134,33 @@ Content-Type: application/json
 
 {
   "title": "Judul Todo",
-  "description": "Deskripsi Todo"
+  "description": "Deskripsi Todo",
+  "urgency": "MEDIUM"
 }
 
 > {%
     client.global.set("todoId", response.body.data.todoId);
 %}
 
-### ===============================
-### GET TODO STATISTICS
-### ===============================
-GET {{BaseUrl}}/todos/statistics
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-### Mengambil todo dengan id
+### Get Todo By ID
 # @name GetTodoById
 GET {{BaseUrl}}/todos/{{todoId}}
 Authorization: Bearer {{authToken}}
-Content-    Type: application/json
 
-### Mengubah todo
+### Update Todo
 # @name PutTodo
 PUT {{BaseUrl}}/todos/{{todoId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "title": "Judul Todo",
-  "description": "Deskripsi Todo",
-  "isDone": true
+  "title": "Judul Todo Update",
+  "description": "Deskripsi Update",
+  "isDone": true,
+  "urgency": "HIGH"
 }
 
-### Mengubah cover todo
+### Update Todo Cover
 # @name PutTodoCover
 PUT {{BaseUrl}}/todos/{{todoId}}/cover
 Authorization: Bearer {{authToken}}
@@ -179,14 +173,21 @@ Content-Type: image/png
 < ./uploads/examples/me.png
 --WebAppBoundary--
 
-### Mengambil cover todo
+### Get Todo Cover
 # @name GetTodoCover
 GET {{BaseUrl}}/images/todos/{{todoId}}
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
 
-### Menghapus todo
+### Delete Todo
 # @name DeleteTodo
 DELETE {{BaseUrl}}/todos/{{todoId}}
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
+
+## =========================================
+## TODO STATISTICS
+## =========================================
+
+### Get Todo Statistics
+# @name GetTodoStatistics
+GET {{BaseUrl}}/todos/statistics
+Authorization: Bearer {{authToken}}
