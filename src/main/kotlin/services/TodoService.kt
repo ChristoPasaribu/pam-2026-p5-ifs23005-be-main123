@@ -30,18 +30,17 @@ class TodoService(
     suspend fun getAll(call: ApplicationCall) {
         val user = ServiceHelper.getAuthUser(call, userRepo)
 
-        val search = call.request.queryParameters["search"] ?: ""
-        val urgencyParam = call.request.queryParameters["urgency"]
+        val search = call.request.queryParameters["search"]
+        val urgency = call.request.queryParameters["urgency"]
+        val isDone = call.request.queryParameters["isDone"]?.toBooleanStrictOrNull()
         val sortBy = call.request.queryParameters["sortBy"]
         val order = call.request.queryParameters["order"]
-
-        // Convert urgency ke Int?
-        val urgency = urgencyParam?.toIntOrNull()
 
         val todos = todoRepo.getAll(
             user.id,
             search,
             urgency,
+            isDone,
             sortBy,
             order
         )
