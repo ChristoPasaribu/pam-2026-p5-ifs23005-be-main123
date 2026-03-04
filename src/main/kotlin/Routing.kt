@@ -100,30 +100,30 @@ fun Application.configureRouting() {
                 post {
                     todoService.post(call)
                 }
-                get("/{id:[0-9a-fA-F-]{36}}") {
+                get("/{id}") {
                     todoService.getById(call)
                 }
 
-                put("/{id:[0-9a-fA-F-]{36}}") {
+                put("/{id}") {
                     todoService.put(call)
                 }
 
-                put("/{id:[0-9a-fA-F-]{36}}/cover") {
+                put("/{id}/cover") {
                     todoService.putCover(call)
                 }
 
-                delete("/{id:[0-9a-fA-F-]{36}}") {
+                delete("/{id}") {
                     todoService.delete(call)
                 }
             }
         }
 
         route("/images") {
-            get("users/{id:[0-9a-fA-F-]{36}}") {
+            get("users/{id}") {
                 userService.getPhoto(call)
             }
 
-            get("todos/{id:[0-9a-fA-F-]{36}}") {
+            get("todos/{id}") {
                 todoService.getCover(call)
             }
         }
