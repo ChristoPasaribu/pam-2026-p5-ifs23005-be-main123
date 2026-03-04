@@ -1,0 +1,24 @@
+package org.delcom.tables
+
+import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+
+object TodoTable : UUIDTable("todos") {
+
+    val userId = uuid("user_id")
+
+    val title = varchar("title", 100)
+    val description = text("description")
+    val cover = text("cover").nullable()
+
+    val urgency = enumerationByName(
+        "urgency",
+        10,
+        UrgencyLevel::class
+    ).default(UrgencyLevel.LOW)
+
+    val isDone = bool("is_done").default(false)
+
+    val createdAt = timestamp("created_at")
+    val updatedAt = timestamp("updated_at")
+}
