@@ -12,51 +12,49 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.lowerCase
 import java.util.*
 import org.delcom.repositories.ITodoRepository.TodoStatistics
+import org.delcom.tables.UrgencyLevel
 
 class TodoRepository : ITodoRepository {
+
     override suspend fun getAll(
         userId: String,
         search: String,
         page: Int,
         perPage: Int,
-        isDone: Boolean?
+        isDone: Boolean?,
+        urgency: String?,
+        sortBy: String?,
+        order: String?
     ): List<Todo> = suspendTransaction {
         val offset = ((page - 1) * perPage).toLong()
+        val keyword = if (search.isBlank()) null else "%${search.lowercase()}%"
 
-        if (search.isBlank()) {
-            TodoDAO
-                .find {
-                    (TodoTable.userId eq UUID.fromString(userId)).let { base ->
-                        if (isDone != null) base and (TodoTable.isDone eq isDone)  // ← TAMBAH filter
-                        else base
-                    }
-                }
-                .orderBy(TodoTable.createdAt to SortOrder.DESC)
-                .limit(perPage)
-                .offset(offset)
-                .map(::todoDAOToModel)
-        } else {
-            val keyword = "%${search.lowercase()}%"
-            TodoDAO
-                .find {
-                    ((TodoTable.userId eq UUID.fromString(userId)) and
-                            (TodoTable.title.lowerCase() like keyword)).let { base ->
-                        if (isDone != null) base and (TodoTable.isDone eq isDone)  // ← TAMBAH filter
-                        else base
-                    }
-                }
-                .orderBy(TodoTable.title to SortOrder.ASC)
-                .limit(perPage)
-                .offset(offset)
-                .map(::todoDAOToModel)
+        val sortColumn = when (sortBy) {
+            "title" -> TodoTable.title
+            "urgency" -> TodoTable.urgency
+            else -> TodoTable.createdAt
         }
-    }
+        val sortOrder = if (order == "asc") SortOrder.ASC else SortOrder.DESC
+
+        TodoDAO.find {
+            var condition = TodoTable.userId eq UUID.fromString(userId)
+            if (keyword != null) condition = condition and (TodoTable.title.lowerCase() like keyword)
+            if (isDone != null) condition = condition and (TodoTable.isDone eq isDone)
+            if (urgency != null) {
+                val urgencyLevel = UrgencyLevel.entries.find { it.name.equals(urgency, ignoreCase = true) }
+                if (urgencyLevel != null) condition = condition and (TodoTable.urgency eq urgencyLevel)
+            }
+            condition
+        }
+            .orderBy(sortColumn to sortOrder)
+            .limit(perPage)
+            .offset(offset)
+            .map(::todoDAOToModel)
+    }   // ← tutup getAll di sini — BUKAN setelah ini
 
     override suspend fun getById(todoId: String): Todo? = suspendTransaction {
         TodoDAO
-            .find {
-                (TodoTable.id eq UUID.fromString(todoId))
-            }
+            .find { TodoTable.id eq UUID.fromString(todoId) }
             .limit(1)
             .map(::todoDAOToModel)
             .firstOrNull()
@@ -72,7 +70,6 @@ class TodoRepository : ITodoRepository {
             createdAt = todo.createdAt
             updatedAt = todo.updatedAt
         }
-
         todoDAO.id.value.toString()
     }
 
@@ -109,20 +106,14 @@ class TodoRepository : ITodoRepository {
         val total = TodoDAO.find { TodoTable.userId eq UUID.fromString(userId) }.count()
 
         val completed = TodoDAO.find {
-            (TodoTable.userId eq UUID.fromString(userId)) and
-                    (TodoTable.isDone eq true)
+            (TodoTable.userId eq UUID.fromString(userId)) and (TodoTable.isDone eq true)
         }.count()
 
         val incomplete = TodoDAO.find {
-            (TodoTable.userId eq UUID.fromString(userId)) and
-                    (TodoTable.isDone eq false)
+            (TodoTable.userId eq UUID.fromString(userId)) and (TodoTable.isDone eq false)
         }.count()
 
-        TodoStatistics(
-            total = total,
-            completed = completed,
-            incomplete = incomplete
-        )
+        TodoStatistics(total = total, completed = completed, incomplete = incomplete)
     }
 
-}
+}  // ← tutup class di sini

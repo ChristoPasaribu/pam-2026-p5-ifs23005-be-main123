@@ -32,9 +32,12 @@ class TodoService(
         val search = call.request.queryParameters["search"] ?: ""
         val page = call.request.queryParameters["page"]?.toIntOrNull()?.coerceAtLeast(1) ?: 1
         val perPage = call.request.queryParameters["perPage"]?.toIntOrNull()?.coerceIn(1, 50) ?: 10
-        val isDone = call.request.queryParameters["isDone"]?.toBooleanStrictOrNull()  // ← TAMBAH
+        val isDone = call.request.queryParameters["isDone"]?.toBooleanStrictOrNull()
+        val urgency = call.request.queryParameters["urgency"]       // ← TAMBAH
+        val sortBy = call.request.queryParameters["sortBy"]         // ← TAMBAH
+        val order = call.request.queryParameters["order"]           // ← TAMBAH
 
-        val todos = todoRepo.getAll(user.id, search, page, perPage, isDone)  // ← pass isDone
+        val todos = todoRepo.getAll(user.id, search, page, perPage, isDone, urgency, sortBy, order)
 
         val response = DataResponse(
             "success",

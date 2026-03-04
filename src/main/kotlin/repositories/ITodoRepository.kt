@@ -8,8 +8,12 @@ interface ITodoRepository {
         search: String,
         page: Int = 1,
         perPage: Int = 10,
-        isDone: Boolean? = null   // ← TAMBAH
-    ): List<Todo>    suspend fun getById(todoId: String): Todo?
+        isDone: Boolean? = null,
+        urgency: String? = null,   // ← TAMBAH
+        sortBy: String? = null,    // ← TAMBAH
+        order: String? = null      // ← TAMBAH
+    ): List<Todo>
+    suspend fun getById(todoId: String): Todo?
     suspend fun create(todo: Todo): String
     suspend fun update(userId: String, todoId: String, newTodo: Todo): Boolean
     suspend fun delete(userId: String, todoId: String): Boolean
