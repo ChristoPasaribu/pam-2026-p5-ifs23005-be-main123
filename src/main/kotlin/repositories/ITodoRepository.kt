@@ -6,17 +6,22 @@ interface ITodoRepository {
 
     suspend fun getAll(
         userId: String,
-        search: String,
-        urgency: Int?,      // filter urgency (nullable)
-        sortBy: String?,    // title, createdAt, urgency
-        order: String?      // asc / desc
+        search: String?,
+        urgency: String?,
+        isDone: Boolean?,
+        sortBy: String?,
+        order: String?
     ): List<Todo>
 
     suspend fun getById(todoId: String): Todo?
 
     suspend fun create(todo: Todo): String
 
-    suspend fun update(userId: String, todoId: String, newTodo: Todo): Boolean
+    suspend fun update(
+        userId: String,
+        todoId: String,
+        newTodo: Todo
+    ): Boolean
 
     suspend fun delete(userId: String, todoId: String): Boolean
 
