@@ -33,14 +33,8 @@ data class TodoRequest(
             description = description,
             cover = cover,
             isDone = isDone,
-            urgency = parseUrgency(),
+            urgency = urgency,  // ← langsung pass String, tidak perlu parseUrgency()
             updatedAt = Clock.System.now()
         )
-    }
-
-    private fun parseUrgency(): UrgencyLevel {
-        return UrgencyLevel.entries.find {
-            it.name.equals(urgency, ignoreCase = true)
-        } ?: UrgencyLevel.LOW
     }
 }
