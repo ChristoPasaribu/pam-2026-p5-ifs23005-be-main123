@@ -116,6 +116,21 @@ Authorization: Bearer {{authToken}}
 ## TODOS
 ## =========================================
 
+### Login
+# @name PostLogin
+POST {{BaseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "tester",
+  "password": "tester"
+}
+
+> {%
+    client.global.set("authToken", response.body.data.authToken);
+    client.global.set("refreshToken", response.body.data.refreshToken);
+%}
+
 ### Get All Todos (No Filter)
 # @name GetTodos
 GET {{BaseUrl}}/todos

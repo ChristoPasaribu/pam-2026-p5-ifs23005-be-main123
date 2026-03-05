@@ -16,7 +16,7 @@ data class Todo(
     var description: String,
     var cover: String? = null,
 
-    val urgency: UrgencyLevel? = UrgencyLevel.LOW,  // ✅ Tambahan baru
+    val urgency: String? = null,  // ← ganti default dari "LOW" ke null
     var isDone: Boolean = false,
 
     @Contextual
