@@ -67,6 +67,7 @@ class TodoRepository : ITodoRepository {
             description = todo.description
             cover = todo.cover
             isDone = todo.isDone
+            urgency = todo.urgency ?: UrgencyLevel.LOW   // ← TAMBAH
             createdAt = todo.createdAt
             updatedAt = todo.updatedAt
         }
@@ -87,6 +88,7 @@ class TodoRepository : ITodoRepository {
             todoDAO.description = newTodo.description
             todoDAO.cover = newTodo.cover
             todoDAO.isDone = newTodo.isDone
+            todoDAO.urgency = newTodo.urgency ?: UrgencyLevel.LOW   // ← TAMBAH
             todoDAO.updatedAt = newTodo.updatedAt
             true
         } else {
@@ -114,6 +116,25 @@ class TodoRepository : ITodoRepository {
         }.count()
 
         TodoStatistics(total = total, completed = completed, incomplete = incomplete)
+    }
+
+    override suspend fun countAll(
+        userId: String,
+        search: String,
+        isDone: Boolean?,
+        urgency: String?
+    ): Long = suspendTransaction {
+        val keyword = if (search.isBlank()) null else "%${search.lowercase()}%"
+        TodoDAO.find {
+            var condition = TodoTable.userId eq UUID.fromString(userId)
+            if (keyword != null) condition = condition and (TodoTable.title.lowerCase() like keyword)
+            if (isDone != null) condition = condition and (TodoTable.isDone eq isDone)
+            if (urgency != null) {
+                val urgencyLevel = UrgencyLevel.entries.find { it.name.equals(urgency, ignoreCase = true) }
+                if (urgencyLevel != null) condition = condition and (TodoTable.urgency eq urgencyLevel)
+            }
+            condition
+        }.count()
     }
 
 }  // ← tutup class di sini

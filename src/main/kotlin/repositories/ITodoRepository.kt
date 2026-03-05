@@ -24,4 +24,11 @@ interface ITodoRepository {
         val completed: Long,
         val incomplete: Long
     )
+
+    suspend fun countAll(
+        userId: String,
+        search: String = "",
+        isDone: Boolean? = null,
+        urgency: String? = null
+    ): Long
 }

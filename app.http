@@ -149,7 +149,7 @@ Authorization: Bearer {{authToken}}
 
 ### Update Todo
 # @name PutTodo
-PUT {{BaseUrl}}/todos/{{todoId}}
+PUT {{BaseUrl}}/todos/2f68746d-e020-42ee-8d2a-f19ef628c203
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 

@@ -33,16 +33,24 @@ class TodoService(
         val page = call.request.queryParameters["page"]?.toIntOrNull()?.coerceAtLeast(1) ?: 1
         val perPage = call.request.queryParameters["perPage"]?.toIntOrNull()?.coerceIn(1, 50) ?: 10
         val isDone = call.request.queryParameters["isDone"]?.toBooleanStrictOrNull()
-        val urgency = call.request.queryParameters["urgency"]       // ← TAMBAH
-        val sortBy = call.request.queryParameters["sortBy"]         // ← TAMBAH
-        val order = call.request.queryParameters["order"]           // ← TAMBAH
+        val urgency = call.request.queryParameters["urgency"]
+        val sortBy = call.request.queryParameters["sortBy"]
+        val order = call.request.queryParameters["order"]
 
         val todos = todoRepo.getAll(user.id, search, page, perPage, isDone, urgency, sortBy, order)
+        val totalCount = todoRepo.countAll(user.id, search, isDone, urgency)  // ← TAMBAH
+        val totalPages = Math.ceil(totalCount.toDouble() / perPage).toInt().coerceAtLeast(1)
 
         val response = DataResponse(
             "success",
             "Berhasil mengambil daftar todo saya",
-            mapOf(Pair("todos", todos))
+            mapOf(
+                "todos" to todos,
+                "page" to page,
+                "perPage" to perPage,
+                "totalPages" to totalPages,
+                "totalCount" to totalCount
+            )
         )
         call.respond(response)
     }
@@ -177,14 +185,12 @@ class TodoService(
         call.respond(response)
     }
 
-    // Mengubah data todo
     suspend fun put(call: ApplicationCall) {
         val todoId = call.parameters["id"]
             ?: throw AppException(400, "Data todo tidak valid!")
 
         val user = ServiceHelper.getAuthUser(call, userRepo)
 
-        // Ambil data request
         val request = call.receive<TodoRequest>()
         request.userId = user.id
 
@@ -193,6 +199,7 @@ class TodoService(
         validator.required("title", "Judul todo tidak boleh kosong")
         validator.required("description", "Deskripsi tidak boleh kosong")
         validator.required("isDone", "Status selesai tidak boleh kosong")
+        validator.required("urgency", "Urgency tidak boleh kosong")   // ← TAMBAH
         validator.validate()
 
         val oldTodo = todoRepo.getById(todoId)
