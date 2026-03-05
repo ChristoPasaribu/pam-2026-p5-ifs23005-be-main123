@@ -133,9 +133,9 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "title": "Judul Todo",
+  "title": "Todo Low",
   "description": "Deskripsi Todo",
-  "urgency": "MEDIUM"
+  "urgency": "LOW"
 }
 
 > {%
