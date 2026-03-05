@@ -154,7 +154,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "title": "Judul Todo Update",
+  "title": "123",
   "description": "Deskripsi Update",
   "isDone": true,
   "urgency": "HIGH"

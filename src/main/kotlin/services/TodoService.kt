@@ -20,6 +20,7 @@ import org.delcom.repositories.ITodoRepository
 import org.delcom.repositories.IUserRepository
 import java.io.File
 import java.util.*
+import org.delcom.data.TodosResponse
 
 class TodoService(
     private val userRepo: IUserRepository,
@@ -38,18 +39,18 @@ class TodoService(
         val order = call.request.queryParameters["order"]
 
         val todos = todoRepo.getAll(user.id, search, page, perPage, isDone, urgency, sortBy, order)
-        val totalCount = todoRepo.countAll(user.id, search, isDone, urgency)  // ← TAMBAH
+        val totalCount = todoRepo.countAll(user.id, search, isDone, urgency)
         val totalPages = Math.ceil(totalCount.toDouble() / perPage).toInt().coerceAtLeast(1)
 
         val response = DataResponse(
-            "success",
-            "Berhasil mengambil daftar todo saya",
-            mapOf(
-                "todos" to todos,
-                "page" to page,
-                "perPage" to perPage,
-                "totalPages" to totalPages,
-                "totalCount" to totalCount
+            status = "success",
+            message = "Berhasil mengambil daftar todo saya",
+            data = TodosResponse(        // ← pakai data class, bukan mapOf
+                todos = todos,
+                page = page,
+                perPage = perPage,
+                totalPages = totalPages,
+                totalCount = totalCount
             )
         )
         call.respond(response)
