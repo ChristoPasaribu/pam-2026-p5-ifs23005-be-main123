@@ -67,7 +67,9 @@ class TodoRepository : ITodoRepository {
             description = todo.description
             cover = todo.cover
             isDone = todo.isDone
-            urgency = todo.urgency ?: UrgencyLevel.LOW   // ← TAMBAH
+            urgency = UrgencyLevel.entries.find {
+                it.name.equals(todo.urgency, ignoreCase = true)
+            } ?: UrgencyLevel.LOW   // ← parse String ke UrgencyLevel
             createdAt = todo.createdAt
             updatedAt = todo.updatedAt
         }
@@ -88,7 +90,9 @@ class TodoRepository : ITodoRepository {
             todoDAO.description = newTodo.description
             todoDAO.cover = newTodo.cover
             todoDAO.isDone = newTodo.isDone
-            todoDAO.urgency = newTodo.urgency ?: UrgencyLevel.LOW   // ← TAMBAH
+            todoDAO.urgency = UrgencyLevel.entries.find {
+                it.name.equals(newTodo.urgency, ignoreCase = true)
+            } ?: UrgencyLevel.LOW   // ← parse String ke UrgencyLevel
             todoDAO.updatedAt = newTodo.updatedAt
             true
         } else {
