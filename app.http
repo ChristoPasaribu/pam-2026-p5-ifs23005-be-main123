@@ -26,7 +26,7 @@ Content-Type: application/json
 
 {
   "username": "tester",
-  "password": "tester"
+  "password": "tester123"
 }
 
 > {%
@@ -78,9 +78,9 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "name": "Tester Update",
+  "name": "Tester 123",
   "username": "tester",
-  "about": "Saya sedang belajar backend Ktor."
+  "about": "Saya sedang belajar keamanan data"
 }
 
 ### Change Password
